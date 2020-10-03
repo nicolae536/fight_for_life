@@ -1,15 +1,19 @@
 use amethyst::{Application, GameDataBuilder};
+use amethyst::core::TransformBundle;
 use amethyst::renderer::{RenderFlat2D, RenderingBundle, RenderToWindow, types::DefaultBackend};
 use amethyst::utils::application_root_dir;
 
-mod fight_for_life;
+use crate::lib::FightForLife;
+
+mod lib;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
     let app_root = application_root_dir().unwrap();
     let display_config_path = app_root.join("config").join("display.ron");
 
-    let game_data = GameDataBuilder::default()
+    let game_data: GameDataBuilder = GameDataBuilder::default()
+        // Add the transform bundle which handles tracking entity positions
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
@@ -19,12 +23,14 @@ fn main() -> amethyst::Result<()> {
                         .with_clear([0.0, 0.0, 0.0, 1.0])
                 )
                 .with_plugin(RenderFlat2D::default())
-        ).unwrap();
+        )
+        // Add the transform bundle which handles tracking entity positions
+        ?.with_bundle(TransformBundle::new())?;
     let assets_dir = app_root.join("assets");
 
     let mut game = Application::new(
         assets_dir,
-        fight_for_life::FightForLife,
+        FightForLife,
         game_data,
     ).unwrap();
     game.run();
